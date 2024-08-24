@@ -52,6 +52,10 @@ unsigned char Rcon[255] = {
     0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33,
     0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb};
 
+void rotate(byte word[]);
+void core(byte word[], byte iteration);
+void expandKey(byte key[]);
+
 void addRoundKey(byte state[], byte roundKey[]);
 void subbyte(byte state[]);
 void shiftRows(byte state[]);
@@ -59,10 +63,10 @@ void mixColumns(byte state[]);
 
 byte aesCypher(byte input, byte key);
 
-
+byte key [KEY_SIZE] = {'k', 'k', 'k', 'k', 'e', 'e', 'e', 'e', 'y', 'y', 'y', 'y', '.', '.', '.', '.'};
 
 int main(){
-
+    expandKey(key);
 
     return 0;
 }
@@ -92,7 +96,7 @@ void core(byte word[], byte iteration){
 }
 
 void expandKey(byte key[]){
-    byte expandedKey[EXPANDED_KEY_SIZE];
+    byte expandedKey[EXPANDED_KEY_SIZE] = {0};
 
     for(int i=0; i<KEY_SIZE; i++){
         expandedKey[i] = key[i];
@@ -102,7 +106,7 @@ void expandKey(byte key[]){
     byte iterator = 1;
 
     byte prevWord[WORD_SIZE];
-    for(; currentSize < EXPANDED_KEY_SIZE; currentSize+=WORD_SIZE){ // para cada nova palavra
+    for(; currentSize < EXPANDED_KEY_SIZE;){ // para cada nova palavra
         for(int i=0; i<WORD_SIZE; i++){
             prevWord[i] = expandedKey[(currentSize-WORD_SIZE)+i];
         }
@@ -111,14 +115,18 @@ void expandKey(byte key[]){
 
         for(int i=0; i<WORD_SIZE; i++){
             expandedKey[currentSize] = expandedKey[currentSize - KEY_SIZE] ^ prevWord[i];
+            currentSize++;
         }
+    }
+    for (int i = 0; i < EXPANDED_KEY_SIZE; i++){
+        printf("%2.2x%c", expandedKey[i], ((i + 1) % 16) ? ' ' : '\n');
     }
 }
 
 byte aesCypher(byte input[], byte key[]){
     byte* state = input;
 
-    byte roundKey = 
+    // byte roundKey = 
 
-    addRoundKey(state, )
+    // addRoundKey(state, )
 }
