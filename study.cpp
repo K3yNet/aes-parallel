@@ -113,6 +113,50 @@ void aes_invRound(unsigned char *state, unsigned char *roundKey);
 void aes_invMain(unsigned char *state, unsigned char *expandedKey, int nbrRounds);
 char aes_decrypt(unsigned char *input, unsigned char *output, unsigned char *key, enum keySize size);
 
+void printBytesHexa(unsigned char teste[], int size){
+    printf("\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa\n\n");
+    for (int i = 0; i < size; i++)
+    {
+        // Print characters in HEX format, 16 chars per line
+        printf("%2.2x%c", teste[i], ((i + 1) % 16) ? ' ' : '\n');
+    }
+    printf("\n\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaa\n");
+}
+
+int main2(){
+    // the expanded keySize
+    int expandedKeySize = 176;
+
+    // the expanded key
+    unsigned char expandedKey[expandedKeySize];
+
+    // the cipher key
+    unsigned char key[16] = {'k', 'k', 'k', 'k', 'e', 'e', 'e', 'e', 'y', 'y', 'y', 'y', '.', '.', '.', '.'};
+
+    // the cipher key size
+    enum keySize size = SIZE_16;
+
+    // the plaintext
+    unsigned char plaintext[16] = {'a', 'b', 'c', 'd', 'e', 'f', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
+
+    // the ciphertext
+    unsigned char ciphertext[16];
+
+    // the decrypted text
+    unsigned char decryptedtext[16];
+
+    // Test the Key Expansion
+    expandKey(expandedKey, key, size, expandedKeySize);
+
+    printBytesHexa(expandedKey, 176);
+
+    aes_main(key, expandedKey, 10);
+
+    // printBytesHexa(key, 16);
+
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
     // the expanded keySize
@@ -296,10 +340,10 @@ void expandKey(unsigned char *expandedKey,
         }
     }
 
-    for (i = 0; i < expandedKeySize; i++)
-    {
-        printf("%2.2x%c", expandedKey[i], ((i + 1) % 16) ? ' ' : '\n');
-    }
+    // for (i = 0; i < expandedKeySize; i++)
+    // {
+    //     printf("%2.2x%c", expandedKey[i], ((i + 1) % 16) ? ' ' : '\n');
+    // }
 }
 
 void subBytes(unsigned char *state)
@@ -310,6 +354,8 @@ void subBytes(unsigned char *state)
      */
     for (i = 0; i < 16; i++)
         state[i] = getSBoxValue(state[i]);
+    
+    printBytesHexa(state, 16);
 }
 
 void shiftRows(unsigned char *state)
@@ -318,6 +364,8 @@ void shiftRows(unsigned char *state)
     // iterate over the 4 rows and call shiftRow() with that row
     for (i = 0; i < 4; i++)
         shiftRow(state + i * 4, i);
+    
+    printBytesHexa(state, 16);
 }
 
 void shiftRow(unsigned char *state, unsigned char nbr)
@@ -339,6 +387,8 @@ void addRoundKey(unsigned char *state, unsigned char *roundKey)
     int i;
     for (i = 0; i < 16; i++)
         state[i] = state[i] ^ roundKey[i];
+    
+    printBytesHexa(state, 16);
 }
 
 unsigned char galois_multiplication(unsigned char a, unsigned char b)
@@ -382,6 +432,7 @@ void mixColumns(unsigned char *state)
             state[(j * 4) + i] = column[j];
         }
     }
+    printBytesHexa(state, 16);
 }
 
 void mixColumn(unsigned char *column)

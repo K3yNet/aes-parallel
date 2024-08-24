@@ -61,12 +61,25 @@ void subBytes(byte state[]);
 void shiftRows(byte state[]);
 void mixColumns(byte state[]);
 
-void aesCypher(byte input, byte key);
+void aesCypher(byte input[], byte key[]);
 
 byte key [KEY_SIZE] = {'k', 'k', 'k', 'k', 'e', 'e', 'e', 'e', 'y', 'y', 'y', 'y', '.', '.', '.', '.'};
 
+byte input [KEY_SIZE*2] = "Ola eu sou Enzo e sou um otario";
+
+void printBytesHexa(byte teste[], int size){
+    printf("\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa\n\n");
+    for (int i = 0; i < size; i++)
+    {
+        // Print characters in HEX format, 16 chars per line
+        printf("%2.2x%c", teste[i], ((i + 1) % 16) ? ' ' : '\n');
+    }
+    printf("\n\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaa\n");
+}
+
+
 int main(){
-    mixColumns(key);
+    aesCypher(key, key);
 
     return 0;
 }
@@ -128,16 +141,22 @@ void getRoundKey(byte expandedKey[], byte roundKey[]){
     }
 }
 
-void shiftRows(byte state[]){
-    for(int it=0; it<WORD_SIZE; it++){
-        byte tmp;
-        for (int i = 0; i < it; i++){
-            tmp = state[0];
-            for (int j = 0; j < WORD_SIZE-1; j++)
-                state[j] = state[j + 1];
-            state[WORD_SIZE-1] = tmp;
-        }
+void shiftRow(byte *state, byte nbr){
+    byte tmp;
+    // each iteration shifts the row to the left by 1
+    for (int i = 0; i < nbr; i++)
+    {
+        tmp = state[0];
+        for (int j = 0; j < 3; j++)
+            state[j] = state[j + 1];
+        state[3] = tmp;
     }
+}
+
+void shiftRows(byte *state){
+    // iterate over the 4 rows and call shiftRow() with that row
+    for (int i = 0; i < 4; i++)
+        shiftRow(state + i * 4, i);
 }
 
 byte galois_multiplication(byte a, byte b){
@@ -194,12 +213,6 @@ void mixColumns(byte state[]){
             state[(j * WORD_SIZE) + i] = column[j];
         }
     }
-    printf("COLUMN\n");
-    for (int i = 0; i < 4; i++)
-    {
-        printf("%2.2x%c", column[i], ((i + 1) % 4) ? ' ' : '\n');
-    }
-    printf("COLUMN\n");
 }
 
 void addRoundKey(byte state[], byte roundKey[]){
@@ -230,7 +243,10 @@ void aesCypher(byte input[], byte key[]){
         mixColumns(state);
         addRoundKey(state,roundKey);
     }
+    getRoundKey(expandedKey + 16 * NUM_ROUNDS, roundKey);
     subBytes(state);
     shiftRows(state);
     addRoundKey(state,roundKey);
+
+    // printBytesHexa(state, 16);
 }
