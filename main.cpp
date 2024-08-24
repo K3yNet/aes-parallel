@@ -111,7 +111,8 @@ void expandKey(byte key[]){
             prevWord[i] = expandedKey[(currentSize-WORD_SIZE)+i];
         }
 
-        core(prevWord, iterator++);
+        if(currentSize % KEY_SIZE == 0)
+            core(prevWord, iterator++);
 
         for(int i=0; i<WORD_SIZE; i++){
             expandedKey[currentSize] = expandedKey[currentSize - KEY_SIZE] ^ prevWord[i];
