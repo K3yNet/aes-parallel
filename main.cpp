@@ -61,13 +61,12 @@ void subBytes(byte state[]);
 void shiftRows(byte state[]);
 void mixColumns(byte state[]);
 
-
 void aesCypher(byte input, byte key);
 
 byte key [KEY_SIZE] = {'k', 'k', 'k', 'k', 'e', 'e', 'e', 'e', 'y', 'y', 'y', 'y', '.', '.', '.', '.'};
 
 int main(){
-    
+    mixColumns(key);
 
     return 0;
 }
@@ -129,6 +128,68 @@ void getRoundKey(byte expandedKey[], byte roundKey[]){
     }
 }
 
+byte galois_multiplication(byte a, byte b){
+    byte p = 0;
+    byte counter;
+    byte hi_bit_set;
+    for (counter = 0; counter < 8; counter++) {
+        if ((b & 1) == 1)
+            p ^= a;
+        hi_bit_set = (a & 0x80);
+        a <<= 1;
+        if (hi_bit_set == 0x80)
+            a ^= 0x1b;
+        b >>= 1;
+    }
+    return p;
+}
+
+void mixColumns(byte state[]){
+    byte column[4];
+    byte cpy[4];
+
+    for (int i = 0; i < WORD_SIZE; i++) {
+
+        for (int j = 0; j < WORD_SIZE; j++) {
+            column[j] = state[(j * WORD_SIZE) + i];
+        }
+
+        for (int i = 0; i < WORD_SIZE; i++) {
+            cpy[i] = column[i];
+        }
+
+        column[0] = galois_multiplication(cpy[0], 2) ^
+                    galois_multiplication(cpy[3], 1) ^
+                    galois_multiplication(cpy[2], 1) ^
+                    galois_multiplication(cpy[1], 3);
+
+        column[1] = galois_multiplication(cpy[1], 2) ^
+                    galois_multiplication(cpy[0], 1) ^
+                    galois_multiplication(cpy[3], 1) ^
+                    galois_multiplication(cpy[2], 3);
+
+        column[2] = galois_multiplication(cpy[2], 2) ^
+                    galois_multiplication(cpy[1], 1) ^
+                    galois_multiplication(cpy[0], 1) ^
+                    galois_multiplication(cpy[3], 3);
+
+        column[3] = galois_multiplication(cpy[3], 2) ^
+                    galois_multiplication(cpy[2], 1) ^
+                    galois_multiplication(cpy[1], 1) ^
+                    galois_multiplication(cpy[0], 3);
+
+        for (int j = 0; j < WORD_SIZE; j++){
+            state[(j * WORD_SIZE) + i] = column[j];
+        }
+    }
+    printf("COLUMN\n");
+    for (int i = 0; i < 4; i++)
+    {
+        printf("%2.2x%c", column[i], ((i + 1) % 4) ? ' ' : '\n');
+    }
+    printf("COLUMN\n");
+}
+
 void addRoundKey(byte state[], byte roundKey[]){
     for(int i = 0; i < KEY_SIZE; i++){
         state[i] = state[i] ^ roundKey[i];
@@ -154,7 +215,7 @@ void aesCypher(byte input[], byte key[]){
         getRoundKey(expandedKey + 16 * i, roundKey);
         subBytes(state);
         shiftRows();
-        mixColumns();
+        mixColumns(state);
         addRoundKey(state,roundKey);
     }
     subBytes(state);
