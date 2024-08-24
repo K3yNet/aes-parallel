@@ -190,6 +190,18 @@ void mixColumns(byte state[]){
     printf("COLUMN\n");
 }
 
+void addRoundKey(byte state[], byte roundKey[]){
+    for(int i = 0; i < KEY_SIZE; i++){
+        state[i] = state[i] ^ roundKey[i];
+    }
+}
+
+void subBytes(byte state[]){
+    for(int i = 0; i < KEY_SIZE; i++){
+        state[i] = sbox[state[i]];
+    }
+}
+
 void aesCypher(byte input[], byte key[]){
     byte* state = input;
     byte expandedKey[EXPANDED_KEY_SIZE] = {0};
@@ -198,15 +210,15 @@ void aesCypher(byte input[], byte key[]){
 
     byte roundKey[KEY_SIZE];
     getRoundKey(expandedKey, roundKey);
-    // addRoundKey();
+    addRoundKey(state,roundKey);
     for(int i=1; i<NUM_ROUNDS; i++){
         getRoundKey(expandedKey + 16 * i, roundKey);
-        // subBytes();
-        // shiftRows();
+        subBytes(state);
+        shiftRows();
         mixColumns(state);
-        // addRoundKey();
+        addRoundKey(state,roundKey);
     }
-    // subBytes();
-    // shiftRows();
-    // addRoundKey();
+    subBytes(state);
+    shiftRows();
+    addRoundKey(state,roundKey);
 }
