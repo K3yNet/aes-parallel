@@ -129,6 +129,17 @@ void getRoundKey(byte expandedKey[], byte roundKey[]){
     }
 }
 
+void addRoundKey(byte state[], byte roundKey[]){
+    for(int i = 0; i < KEY_SIZE; i++){
+        state[i] = state[i] ^ roundKey[i];
+    }
+}
+
+void subBytes(byte state[]){
+    for(int i = 0; i < KEY_SIZE; i++){
+        state[i] = sbox[state[i]];
+    }
+}
 
 void aesCypher(byte input[], byte key[]){
     byte* state = input;
@@ -138,15 +149,15 @@ void aesCypher(byte input[], byte key[]){
 
     byte roundKey[KEY_SIZE];
     getRoundKey(expandedKey, roundKey);
-    addRoundKey();
+    addRoundKey(state,roundKey);
     for(int i=1; i<NUM_ROUNDS; i++){
         getRoundKey(expandedKey + 16 * i, roundKey);
-        subBytes();
+        subBytes(state);
         shiftRows();
         mixColumns();
-        addRoundKey();
+        addRoundKey(state,roundKey);
     }
-    subBytes();
+    subBytes(state);
     shiftRows();
-    addRoundKey();
+    addRoundKey(state,roundKey);
 }
