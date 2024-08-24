@@ -54,19 +54,20 @@ unsigned char Rcon[255] = {
 
 void rotate(byte word[]);
 void core(byte word[], byte iteration);
-void expandKey(byte key[]);
+void expandKey(byte key[], byte expandedKey[]);
 
 void addRoundKey(byte state[], byte roundKey[]);
-void subbyte(byte state[]);
+void subBytes(byte state[]);
 void shiftRows(byte state[]);
 void mixColumns(byte state[]);
 
-byte aesCypher(byte input, byte key);
+
+void aesCypher(byte input, byte key);
 
 byte key [KEY_SIZE] = {'k', 'k', 'k', 'k', 'e', 'e', 'e', 'e', 'y', 'y', 'y', 'y', '.', '.', '.', '.'};
 
 int main(){
-    expandKey(key);
+    
 
     return 0;
 }
@@ -95,38 +96,56 @@ void core(byte word[], byte iteration){
     word[0] = word[0] ^ Rcon[iteration];
 }
 
-void expandKey(byte key[]){
-    byte expandedKey[EXPANDED_KEY_SIZE] = {0};
+void expandKey(byte key[], byte expandedKey[]){
 
     for(int i=0; i<KEY_SIZE; i++){
         expandedKey[i] = key[i];
     }
 
     int currentSize = KEY_SIZE;
-    byte iterator = 1;
+    byte rcomIterator = 1;
 
-    byte prevWord[WORD_SIZE];
-    for(; currentSize < EXPANDED_KEY_SIZE;){ // para cada nova palavra
+    byte prevWord[WORD_SIZE] = {0};
+    for(; currentSize < EXPANDED_KEY_SIZE;){
         for(int i=0; i<WORD_SIZE; i++){
             prevWord[i] = expandedKey[(currentSize-WORD_SIZE)+i];
         }
-
-        core(prevWord, iterator++);
+        
+        core(prevWord, rcomIterator++);
 
         for(int i=0; i<WORD_SIZE; i++){
             expandedKey[currentSize] = expandedKey[currentSize - KEY_SIZE] ^ prevWord[i];
             currentSize++;
         }
     }
-    for (int i = 0; i < EXPANDED_KEY_SIZE; i++){
-        printf("%2.2x%c", expandedKey[i], ((i + 1) % 16) ? ' ' : '\n');
+}
+
+void getRoundKey(byte expandedKey[], byte roundKey[]){
+    for(int i=0; i<WORD_SIZE; i++){
+        for(int j=0; j<WORD_SIZE; j++){
+            roundKey[i + (j * WORD_SIZE)] = expandedKey[((i * WORD_SIZE) + j)];
+        }
     }
 }
 
-byte aesCypher(byte input[], byte key[]){
+
+void aesCypher(byte input[], byte key[]){
     byte* state = input;
+    byte expandedKey[EXPANDED_KEY_SIZE] = {0};
 
-    // byte roundKey = 
+    expandKey(key, expandedKey);
 
-    // addRoundKey(state, )
+    byte roundKey[KEY_SIZE];
+    getRoundKey(expandedKey, roundKey);
+    addRoundKey();
+    for(int i=1; i<NUM_ROUNDS; i++){
+        getRoundKey(expandedKey + 16 * i, roundKey);
+        subBytes();
+        shiftRows();
+        mixColumns();
+        addRoundKey();
+    }
+    subBytes();
+    shiftRows();
+    addRoundKey();
 }

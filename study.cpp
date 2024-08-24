@@ -295,6 +295,11 @@ void expandKey(unsigned char *expandedKey,
             currentSize++;
         }
     }
+
+    for (i = 0; i < expandedKeySize; i++)
+    {
+        printf("%2.2x%c", expandedKey[i], ((i + 1) % 16) ? ' ' : '\n');
+    }
 }
 
 void subBytes(unsigned char *state)
