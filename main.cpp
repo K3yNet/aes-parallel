@@ -1,4 +1,7 @@
+#include <fstream>
+#include <sstream>
 #include <iostream>
+#include <omp.h>
 
 #define KEY_SIZE 16
 #define NUM_ROUNDS 10
@@ -62,10 +65,11 @@ void shiftRows(byte state[]);
 void mixColumns(byte state[]);
 
 void aesCypher(byte input[], byte key[]);
+byte* aesEncrypt(std::string input, byte key[]);
 
 byte key [KEY_SIZE] = {'k', 'k', 'k', 'k', 'e', 'e', 'e', 'e', 'y', 'y', 'y', 'y', '.', '.', '.', '.'};
 
-byte input [KEY_SIZE*2] = "Ola eu sou Enzo e sou um otario";
+std::string input = "Ola eu sou Enzo e sou um otario";
 
 void printBytesHexa(byte teste[], int size){
     printf("\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa\n\n");
@@ -79,7 +83,36 @@ void printBytesHexa(byte teste[], int size){
 
 
 int main(){
-    aesCypher(key, key);
+    std::ifstream file("input.txt");
+    if(!file){
+        printf("Não foi possível abrir o arquivo.\n");
+        return 1;
+    }
+    std::stringstream buffer;
+    buffer << file.rdbuf(); // Lê o conteúdo do arquivo e coloca no buffer
+
+    std::string conteudo = buffer.str();
+
+    byte* encryptedInput = aesEncrypt(conteudo, key);
+
+    size_t size = sizeof(encryptedInput) / sizeof(encryptedInput[0]);
+
+    // Abra um arquivo binário para escrita
+    std::ofstream outFile("output.enc", std::ios::binary);
+
+    // Verifique se o arquivo foi aberto corretamente
+    if (!outFile) {
+        std::cerr << "Erro ao abrir o arquivo para escrita." << std::endl;
+        return 1;
+    }
+
+    // Escreva os dados do vetor no arquivo
+    outFile.write(reinterpret_cast<const char*>(encryptedInput), size);
+
+    // Feche o arquivo
+    outFile.close();
+
+    std::cout << "Dados salvos no arquivo com sucesso!" << std::endl;
 
     return 0;
 }
@@ -143,9 +176,7 @@ void getRoundKey(byte expandedKey[], byte roundKey[]){
 
 void shiftRow(byte *state, byte nbr){
     byte tmp;
-    // each iteration shifts the row to the left by 1
-    for (int i = 0; i < nbr; i++)
-    {
+    for (int i = 0; i < nbr; i++){
         tmp = state[0];
         for (int j = 0; j < 3; j++)
             state[j] = state[j + 1];
@@ -154,9 +185,9 @@ void shiftRow(byte *state, byte nbr){
 }
 
 void shiftRows(byte *state){
-    // iterate over the 4 rows and call shiftRow() with that row
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++){
         shiftRow(state + i * 4, i);
+    }
 }
 
 byte galois_multiplication(byte a, byte b){
@@ -227,11 +258,8 @@ void subBytes(byte state[]){
     }
 }
 
-void aesCypher(byte input[], byte key[]){
+void aesCypher(byte input[], byte expandedKey[]){
     byte* state = input;
-    byte expandedKey[EXPANDED_KEY_SIZE] = {0};
-
-    expandKey(key, expandedKey);
 
     byte roundKey[KEY_SIZE];
     getRoundKey(expandedKey, roundKey);
@@ -247,6 +275,37 @@ void aesCypher(byte input[], byte key[]){
     subBytes(state);
     shiftRows(state);
     addRoundKey(state,roundKey);
+}
 
-    // printBytesHexa(state, 16);
+byte* aesEncrypt(std::string input, byte key[]){
+    const char* cInput = input.c_str();
+    const int inputSize = (input.size()/16 + 1)*16;
+    int nBlocks = inputSize/16;
+
+    byte encryptedInput[inputSize];
+
+    byte* bInput = new byte[inputSize];
+    int i;
+    for(i=0; i<input.size(); i++){
+        bInput[i] = cInput[i];
+    }
+    for(; i<inputSize; i++){
+        bInput[i] = 0;
+    }
+
+    // for(i=0; i<inputSize; i++){
+    //     printf("%c", bInput[i]);
+    // }
+    // printf("\n");
+
+    byte expandedKey[EXPANDED_KEY_SIZE];
+    expandKey(key, expandedKey);
+
+    // Paralelização das entradas da criptografia
+    #pragma omp parallel for
+    for(int i=0; i<nBlocks; i++){
+        aesCypher(bInput + 16*i, expandedKey);
+    }
+
+    return bInput;
 }
