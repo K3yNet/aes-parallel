@@ -78,36 +78,40 @@ void printBytesHexa(byte teste[], int size){
 }
 
 
-int main(){
+int main(int argc, char* argv[]){
+
+    if(argc != 2){
+        printf("Execute o código com ./nome_arq.o nThreads\n");
+        return 1;
+    }
+    int nThreads = atoi(argv[1]);
+    omp_set_num_threads(nThreads);
+
     std::ifstream file("input.txt");
     if(!file){
         printf("Não foi possível abrir o arquivo. Crie um arquivo chamado 'input.txt'\n");
         return 1;
     }
     std::stringstream buffer;
-    buffer << file.rdbuf(); // Lê o conteúdo do arquivo e coloca no buffer
+    buffer << file.rdbuf();
 
     std::string conteudo = buffer.str();
 
     size_t size;
     byte* encryptedInput = aesEncrypt(conteudo, key, size);
 
-    // Abra um arquivo binário para escrita
     std::ofstream outFile("output.enc", std::ios::binary);
 
-    // Verifique se o arquivo foi aberto corretamente
     if (!outFile) {
         std::cerr << "Erro ao abrir o arquivo para escrita." << std::endl;
         return 1;
     }
 
-    // Escreva os dados do vetor no arquivo
     outFile.write(reinterpret_cast<const char*>(encryptedInput), size);
 
-    // Feche o arquivo
     outFile.close();
 
-    std::cout << "Dados criptografados e salvos no arquivo com sucesso!" << std::endl;
+    // std::cout << "Dados criptografados e salvos no arquivo com sucesso!" << std::endl;
 
     return 0;
 }
@@ -304,7 +308,7 @@ byte* aesEncrypt(std::string input, byte key[], size_t &inputSize){
 
     double endTime = omp_get_wtime();
 
-    printf("Tempo: %.6f\n", endTime-startTime);
+    printf(" %.6f", endTime-startTime);
 
     return bInput;
 }
