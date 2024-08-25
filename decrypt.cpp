@@ -1,4 +1,7 @@
+#include <fstream>
+#include <sstream>
 #include <iostream>
+#include <omp.h>
 
 #define KEY_SIZE 16
 #define NUM_ROUNDS 10
@@ -63,22 +66,44 @@ void invMixColumns(byte state[]);
 
 
 void aesDescypher(byte input[], byte key[]);
+void aesDecrypt(byte input[], int inputSize, byte key[]);
 
 byte key [KEY_SIZE] = {'k', 'k', 'k', 'k', 'e', 'e', 'e', 'e', 'y', 'y', 'y', 'y', '.', '.', '.', '.'};
 
 void printBytesHexa(byte teste[], int size){
-    printf("\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa\n\n");
-    for (int i = 0; i < size; i++)
-    {
-        // Print characters in HEX format, 16 chars per line
+    printf("\n=============== Print ================\n\n");
+    for (int i = 0; i < size; i++){
         printf("%2.2x%c", teste[i], ((i + 1) % 16) ? ' ' : '\n');
     }
-    printf("\n\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaa\n");
+    printf("\n=======================================\n");
 }
 
 
 int main(){
-    aesDescypher(key, key);
+    std::ifstream inFile("output.enc", std::ios::binary);
+
+    if (!inFile) {
+        std::cerr << "Erro ao abrir o arquivo para leitura." << std::endl;
+        return 1;
+    }
+
+    inFile.seekg(0, std::ios::end);
+    std::streamsize fileSize = inFile.tellg();
+    inFile.seekg(0, std::ios::beg);
+
+    byte* data = new byte[fileSize];
+
+    if (!inFile.read(reinterpret_cast<char*>(data), fileSize)) {
+        std::cerr << "Erro ao ler os dados do arquivo." << std::endl;
+        delete[] data;  // Libera a memória alocada em caso de erro
+        return 1;
+    }
+
+    inFile.close();
+
+    aesDecrypt(data, fileSize, key);
+
+    delete[] data;
 
     return 0;
 }
@@ -163,11 +188,8 @@ void addRoundKey(byte state[], byte roundKey[]){
 }
 
 
-void aesDescypher(byte input[], byte key[]){
+void aesDescypher(byte input[], byte expandedKey[]){
     byte* state = input;
-    byte expandedKey[EXPANDED_KEY_SIZE] = {0};
-
-    expandKey(key, expandedKey);
 
     byte roundKey[KEY_SIZE];
     getRoundKey(expandedKey + 16 * NUM_ROUNDS, roundKey);
@@ -183,14 +205,6 @@ void aesDescypher(byte input[], byte key[]){
     invShiftRows(state);
     invSubBytes(state);
     addRoundKey(state, roundKey);
-
-    // printBytesHexa(state, 16);
-
-    for(int i=0; i<16; i++){
-        printf("%c", state[i]);
-    }
-    printf("\n");
-
 }
 
 void invSubBytes(byte state[]) {
@@ -257,4 +271,28 @@ void invMixColumns(byte state[])
             state[(j * WORD_SIZE) + i] = column[j];
         }
     }
+}
+
+void aesDecrypt(byte bInput[], int inputSize, byte key[]){
+    int nBlocks = inputSize/16;
+
+    byte expandedKey[EXPANDED_KEY_SIZE];
+    expandKey(key, expandedKey);
+
+    double startTime = omp_get_wtime();
+
+    // Paralelização das entradas da criptografia
+    #pragma omp parallel for
+    for(int i=0; i<nBlocks; i++){
+        aesDescypher(bInput + 16*i, expandedKey);
+    }
+
+    double endTime = omp_get_wtime();
+
+    printf("Tempo: %.6f\n", endTime-startTime);
+
+    for(int i=0; i<inputSize; i++){
+        printf("%c", bInput[i]);
+    }
+    printf("\n");
 }
