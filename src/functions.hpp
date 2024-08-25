@@ -313,8 +313,7 @@ void invMixColumns(byte state[])
 {
     byte column[WORD_SIZE];
 
-    for (int i = 0; i < WORD_SIZE; i++)
-    {
+    for (int i = 0; i < WORD_SIZE; i++){
         for (int j = 0; j < WORD_SIZE; j++){
             column[j] = state[(j * WORD_SIZE) + i];
         }

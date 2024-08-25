@@ -1,10 +1,25 @@
 #include "src/app.hpp"
 
-byte key [KEY_SIZE] = {'k', 'k', 'k', 'k', 'e', 'e', 'e', 'e', 'y', 'y', 'y', 'y', '.', '.', '.', '.'};
+int main(int argc, char* argv[]){
 
-int main(){
+    if(argc != 4){
+        printf("Uso do programa: ./main.o key_16_characters input_file_name.txt num_threads\n");
+        return 1;
+    }
+    // converter a entrada de char para unsigned char
+    byte key[KEY_SIZE];
+    for (size_t i = 0; i < KEY_SIZE; ++i) {
+        key[i] = static_cast<unsigned char>(argv[1][i]);
+    }
 
-    appEncrypt(key, "input.txt");
+    char* fileName = argv[2];
+
+    int numThreads = atoi(argv[3]);
+
+    omp_set_num_threads(numThreads);
+
+    appEncrypt(key, fileName);
     appDecrypt(key, "output.enc");
     
+    return 0;
 }
