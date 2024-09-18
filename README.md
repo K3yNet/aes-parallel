@@ -22,10 +22,6 @@ Os testes foram realizados em dois modelos de notebooks, ambos equipados com pro
   
   ![image2](https://github.com/user-attachments/assets/2fbccb76-e6d4-4d77-9e6c-2611d17bdbb2)
 
-- **Eficiência**:
-  
-  ![image3](https://github.com/user-attachments/assets/747b1faf-a86a-4aff-989b-91b149cbb0bf)
-
 ### Como Usar (Português)
 
 1. Compile o código em "main.cpp" com suporte para OpenMP:
@@ -65,10 +61,6 @@ The tests were conducted on two notebook models, both equipped with 11th-generat
 - **SpeedUp**:
   
   ![image2](https://github.com/user-attachments/assets/2fbccb76-e6d4-4d77-9e6c-2611d17bdbb2)
-
-- **Efficiency**:
-  
-  ![image3](https://github.com/user-attachments/assets/747b1faf-a86a-4aff-989b-91b149cbb0bf)
 
 ### How to Use (English)
 
