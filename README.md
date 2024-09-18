@@ -8,29 +8,36 @@ Este projeto implementa uma versão paralelizada do algoritmo Advanced Encryptio
 
 Nosso algoritmo paralelo oferece uma eficiência muito maior comparado à versão sequencial tradicional do AES. Ao utilizarmos múltiplos threads, a execução é drasticamente mais rápida, conforme demonstrado pelos gráficos de tempo de execução e eficiência. A métrica de Karp-Flat foi usada para avaliar o ganho de desempenho.
 
+### Hardware Utilizado
+
+Os testes foram realizados em dois modelos de notebooks, ambos equipados com processadores Intel Core i5 de 11ª geração com 4 núcleos físicos e 8 GB de memória RAM. Este hardware foi escolhido para fornecer uma base consistente para avaliar o desempenho da paralelização em um ambiente com recursos limitados.
+
 ### Gráficos
 
 - **Tempo de Execução**:
+
+  ![image1](https://github.com/user-attachments/assets/2e70ff93-ed6c-4f51-89d2-f660522a1338)
+
+- **SpeedUp**:
   
-  (Insira aqui o gráfico de tempo de execução)
+  ![image2](https://github.com/user-attachments/assets/2fbccb76-e6d4-4d77-9e6c-2611d17bdbb2)
 
 - **Eficiência**:
   
-  (Insira aqui o gráfico de eficiência)
+  ![image3](https://github.com/user-attachments/assets/747b1faf-a86a-4aff-989b-91b149cbb0bf)
 
 ### Como Usar (Português)
 
-1. Navegue até o diretório `src`.
-2. Compile o código com suporte para OpenMP:
+1. Compile o código em "main.cpp" com suporte para OpenMP:
 
     ```bash
-    g++ -fopenmp -o aes_parallel aes_parallel.cpp
+    g++ -fopenmp -o main main.cpp
     ```
 
-3. Execute o programa, fornecendo o número de threads e o arquivo de entrada:
+2. Execute o programa, fornecendo o número de threads e o arquivo de entrada:
 
     ```bash
-    ./aes_parallel <numero_de_threads> <arquivo_de_entrada>
+    ./main key_16_characters "input_name_file.txt" "num_threads"
     ```
 
     O programa gerará a saída criptografada.
@@ -45,29 +52,36 @@ This project implements a parallelized version of the Advanced Encryption Standa
 
 Our parallel algorithm offers much greater efficiency compared to the traditional sequential version of AES. By utilizing multiple threads, the execution time is drastically faster, as demonstrated by the execution time and efficiency graphs. The Karp-Flat metric was used to assess the performance gains.
 
+### Hardware Used
+
+The tests were conducted on two notebook models, both equipped with 11th-generation Intel Core i5 processors with 4 physical cores and 8 GB of RAM. This hardware was chosen to provide a consistent baseline for evaluating the performance of parallelization in a limited resource environment.
+
 ### Graphs
 
 - **Execution Time**:
+
+  ![image1](https://github.com/user-attachments/assets/2e70ff93-ed6c-4f51-89d2-f660522a1338)
+
+- **SpeedUp**:
   
-  (Insert execution time graph here)
+  ![image2](https://github.com/user-attachments/assets/2fbccb76-e6d4-4d77-9e6c-2611d17bdbb2)
 
 - **Efficiency**:
   
-  (Insert efficiency graph here)
+  ![image3](https://github.com/user-attachments/assets/747b1faf-a86a-4aff-989b-91b149cbb0bf)
 
 ### How to Use (English)
 
-1. Navigate to the `src` directory.
-2. Compile the code with OpenMP support:
+1. Compile the code in "main.cpp" with OpenMP support:
 
     ```bash
-    g++ -fopenmp -o aes_parallel aes_parallel.cpp
+    g++ -fopenmp -o main main.cpp
     ```
 
-3. Run the program, specifying the number of threads and the input file:
+2. Run the program, specifying the number of threads and the input file:
 
     ```bash
-    ./aes_parallel <number_of_threads> <input_file>
+    ./main key_16_characters "input_name_file.txt" "num_threads"
     ```
 
     The program will output the encrypted data.
@@ -79,3 +93,5 @@ Our parallel algorithm offers much greater efficiency compared to the traditiona
 - Gustavo Soares
 - Rafael Brunini
 - Enzo Velo
+
+---
