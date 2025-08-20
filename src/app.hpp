@@ -6,7 +6,7 @@
 int appEncrypt(byte key[], std::string input){ 
     std::ifstream file(input);
     if(!file){
-        printf("Não foi possível abrir o arquivo. Crie um arquivo chamado 'input.txt'\n");
+        printf("Could not open the file. Please create a file named 'input.txt'\n");
         return 1;
     }
     std::stringstream buffer;
@@ -18,13 +18,13 @@ int appEncrypt(byte key[], std::string input){
 
     std::ofstream outFile("output.enc", std::ios::binary);
     if (!outFile) {
-        std::cerr << "Erro ao abrir o arquivo para escrita." << std::endl;
+        std::cerr << "Error opening file for writing." << std::endl;
         return 1;
     }
     outFile.write(reinterpret_cast<const char*>(encryptedInput), size);
     outFile.close();
 
-    std::cout << "Dados criptografados e salvos no arquivo com sucesso!" << std::endl;
+    std::cout << "Data encrypted and saved to file successfully!" << std::endl;
 
     delete[] encryptedInput;
 
@@ -35,7 +35,7 @@ int appDecrypt(byte key[], std::string output){
     std::ifstream inFile(output, std::ios::binary);
 
     if (!inFile) {
-        std::cerr << "Erro ao abrir o arquivo para leitura." << std::endl;
+        std::cerr << "Error opening file for reading." << std::endl;
         return 1;
     }
 
@@ -46,8 +46,8 @@ int appDecrypt(byte key[], std::string output){
     byte* data = new byte[fileSize];
 
     if (!inFile.read(reinterpret_cast<char*>(data), fileSize)) {
-        std::cerr << "Erro ao ler os dados do arquivo." << std::endl;
-        delete[] data;  // Libera a memória alocada em caso de erro
+        std::cerr << "Error reading data from the file." << std::endl;
+        delete[] data;
         return 1;
     }
 
